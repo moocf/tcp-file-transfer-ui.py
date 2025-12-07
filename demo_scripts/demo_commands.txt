@@ -1,0 +1,83 @@
+# FT-Echo Demo Commands
+# Manual commands to test the FT-Echo protocol
+
+# ============================================
+# 1. Start the TCP Server
+# ============================================
+# In terminal 1:
+# Linux/macOS:
+cd server
+python3 tcp_server.py 9000
+
+# Windows:
+cd server
+python tcp_server.py 9000
+
+# ============================================
+# 2. Test with CLI Client
+# ============================================
+# In terminal 2:
+# Linux/macOS:
+cd server
+python3 cli_client.py
+
+# Windows:
+cd server
+python cli_client.py
+
+# Then run these commands in the CLI:
+connect localhost 9000
+list
+put ../demo_data/small.txt
+get small.txt downloaded_small.txt
+list
+quit
+
+# ============================================
+# 3. Test Resume Operation
+# ============================================
+# Start a PUT, then interrupt it (Ctrl+C), then resume:
+connect localhost 9000
+put ../demo_data/large.bin
+# (Interrupt with Ctrl+C before completion)
+# Check the .part file size in storage/ directory
+# Then resume:
+resume large.bin <offset> put
+quit
+
+# ============================================
+# 4. Test with FastAPI HTTP Wrapper
+# ============================================
+# In terminal 3 (make sure TCP server is running):
+cd server
+pip install -r requirements.txt
+# Linux/macOS:
+python3 fastapi_app.py
+# Windows:
+python fastapi_app.py
+
+# Then test endpoints:
+# - GET http://localhost:8000/api/list
+# - GET http://localhost:8000/api/get?file=small.txt
+# - POST http://localhost:8000/api/put (multipart form with file)
+
+# ============================================
+# 5. Test with React Frontend
+# ============================================
+# In terminal 4 (make sure TCP server and FastAPI are running):
+cd frontend
+npm install
+npm start
+
+# Open http://localhost:3000 in browser
+# - Upload files via the UI
+# - Download files by clicking Download button
+# - View file list and checksums
+
+# ============================================
+# 6. Verify Checksums
+# ============================================
+# Compare SHA256 checksums:
+python3 -c "import hashlib; print(hashlib.sha256(open('demo_data/small.txt','rb').read()).hexdigest())"
+# Should match the SHA256 shown after PUT/GET operations
+
